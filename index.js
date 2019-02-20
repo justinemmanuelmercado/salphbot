@@ -58,6 +58,7 @@ const philippineSubmissionStream = client.SubmissionStream(philippineSubmissionO
 
 const notifyMe = (subject, message) => {
     mailer({ subject, message });
+    console.log(`Sent on: ${currentDate}`);
 }
 
 setInterval(() => {
