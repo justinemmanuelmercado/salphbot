@@ -24,6 +24,7 @@ let PHILIPPINES = 'testingground4bots';
 let POLL_TIME = 10000; // 10 minutes
 let NUMBER_OF_RESULTS = 2;
 
+
 if (process.env.ENVIRONMENT !== "testing") {
     SUGGEST_A_LAPTOP = "suggestalaptop";
     PHILIPPINES = "philippines";
@@ -31,6 +32,10 @@ if (process.env.ENVIRONMENT !== "testing") {
     NUMBER_OF_RESULTS = 25;
 }
 
+
+const currentDate = new Date().toLocaleString();
+const pingingMsg = `Still Running at ${currentDate}`;
+const pingingPoll = 1000 * 60 * 60; // every hour
 
 const suggestALaptopCommentOpts = {
     subreddit: SUGGEST_A_LAPTOP,
@@ -53,8 +58,11 @@ const philippineSubmissionStream = client.SubmissionStream(philippineSubmissionO
 
 const notifyMe = (subject, message) => {
     mailer({ subject, message });
-    // console.log(subject, message);
 }
+
+setInterval(() => {
+    console.log(pingingMsg);
+}, pingingPoll)
 
 /**
  * Subreddit: SuggestALaptop
