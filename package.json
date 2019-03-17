@@ -10,8 +10,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.18.0",
     "dotenv": "^6.2.0",
     "nodemailer": "^5.1.1",
+    "pushbullet": "^2.4.0",
     "snoostorm": "0.0.5",
     "snoowrap": "^1.15.2"
   }

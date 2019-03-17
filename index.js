@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { mailer } = require("./mailer");
+const { notify } = require("./pb");
 
 const Snoowrap = require('snoowrap');
 const Snoostorm = require('snoostorm');
@@ -33,8 +33,7 @@ if (process.env.ENVIRONMENT !== "testing") {
 }
 
 
-const currentDate = new Date().toLocaleString();
-const pingingMsg = `Still Running at ${currentDate}`;
+const pingingMsg = `Still Running at ${new Date().toLocaleString()}`;
 const pingingPoll = 1000 * 60 * 60; // every hour
 
 const suggestALaptopCommentOpts = {
@@ -56,9 +55,17 @@ const suggestALaptopSumissionStream = client.SubmissionStream(suggestALaptopSubm
 const philippineCommentStream = client.CommentStream(philippineCommentOpts);
 const philippineSubmissionStream = client.SubmissionStream(philippineSubmissionOpts);
 
-const notifyMe = (subject, message) => {
-    mailer({ subject, message });
-    console.log(`Sent on: ${currentDate}`);
+const notifyMe = async (title, body, url) => {
+    console.log(`Trying to Push on: ${new Date().toLocaleString()}`);
+    try {
+        await notify(title, body, url)
+    } catch (e) {
+        console.error("PUSH NOTIFICATION FAILED")
+        console.error(e);
+    }
+    // mailer({ subject, message });
+    // const res = await notify();
+    // console.log(res);
 }
 
 setInterval(() => {
@@ -73,9 +80,8 @@ suggestALaptopCommentStream.on('comment', (comment) => {
     if (comment.body.toLowerCase().includes('philippines')) {
         notifyMe(
             `SuggestALaptop Comment`,
-            `Post title: ${comment.link_title}
-            Comment Body: ${comment.body}
-            Link: ${comment.link_permalink}`)
+            `Post title: ${comment.link_title} \nComment Body: ${comment.body}`,
+            comment.link_permalink)
     }
 });
 
@@ -88,9 +94,8 @@ suggestALaptopSumissionStream.on('submission', (post) => {
         post.title.toLowerCase().includes('philippines')) {
         notifyMe(
             `SuggestALaptop Submission`,
-            `Title: ${post.title}
-             Selftext: ${post.selftext}
-             Link: ${post.permalink}`
+            `Title: ${post.title} \nSelftext: ${post.selftext}`,
+            post.url
         );
     }
 })
@@ -103,9 +108,9 @@ suggestALaptopSumissionStream.on('submission', (post) => {
 philippineCommentStream.on('comment', (comment) => {
     if (comment.body.toLowerCase().includes('laptop')) {
         notifyMe(`Philippines comment`,
-            `Post title: ${comment.link_title}
-            Comment Body: ${comment.body}
-            Link: ${comment.link_permalink}`)
+            `Post title: ${comment.link_title} \nComment Body: ${comment.body}`,
+            comment.link_permalink
+        )
     }
 })
 
@@ -116,14 +121,15 @@ philippineCommentStream.on('comment', (comment) => {
 philippineSubmissionStream.on('submission', (post) => {
     if (post.selftext.toLowerCase().includes('laptop') ||
         post.title.toLowerCase().includes('laptop')) {
+        console.log(post);
         notifyMe(
             `Philippines Submission`,
-            `Title: ${post.title}
-                 Selftext: ${post.selftext}
-                 Link: ${post.permalink}`
+            `Title: ${post.title} \nSelftext: ${post.selftext}
+                 Link: ${post.url}`,
+            post.url
         );
     }
 })
 
 console.log(`Running in ${process.env.ENVIRONMENT}`);
-console.log(`Crawling ${SUGGEST_A_LAPTOP} and ${PHILIPPINES}. Polling every ${POLL_TIME/1000} second/s for ${NUMBER_OF_RESULTS} results`);
+console.log(`Crawling ${SUGGEST_A_LAPTOP} and ${PHILIPPINES}. Polling every ${POLL_TIME / 1000} second/s for ${NUMBER_OF_RESULTS} results`);
