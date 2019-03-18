@@ -1,4 +1,3 @@
-const PushBullet = require("pushbullet");
 const axios = require("axios");
 const { PB_KEY, IDEN } = process.env;
 
@@ -22,7 +21,5 @@ module.exports = {
                     "Access-Token": key
                 }
             });
-        // await pb.link()
-        // return devices;
     }
 }
